@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import os
 import re
 import sys
@@ -10,28 +11,18 @@ from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeo
 
 URL = "https://www.o2online.de/netz/netzstoerung/"
 ADDRESS = "Egger Straße, 94469 Deggendorf, Deutschland"
-MOBILE_NUMBER = "017642930528"
+MOBILE_NUMBER = "01797568645"
 TIMEZONE = ZoneInfo("Europe/Berlin")
 LOG_PATH = os.path.join("data", "o2_report.md")
 README_PATH = "README.md"
 TRIGGER_PHRASE = "Eine Basisstation in der Nähe funktioniert im Moment nicht einwandfrei."
 
 TEMPLATES = [
-    "Professional & Technical\nMy mobile number is 017642930528 and I am reporting a persistent speed cap. Despite having a full 5G signal, my downloads never exceed 20 Mbps in any location. I have tested this across multiple cities over several months with the same result. This suggests a profile throttling issue on my SIM card rather than a local mast fault. Please refresh my network provisioning and confirm that my account has no speed limits.",
-    "I am writing to follow up on my recent network disturbance report for 017642930528. My device consistently shows a 5G connection, yet speed tests are stalled at 20 Mbps. This performance has been ongoing for many months and occurs regardless of the time. I have already performed a network settings reset on my device with no improvement. I request a manual technical audit of my data plan to ensure 5G access is fully enabled.",
-    "Regarding my O2 contract, I am experiencing a severe discrepancy in advertised speeds. My current data throughput is reaching a maximum of 20 Mbps on a 5G network. This issue is not location-specific as it occurs \"everywhere\" according to my tests. Since this has persisted for months, it is no longer a temporary maintenance issue. Please investigate if my internal O2 data profile is restricted to a lower speed tier.",
-    "Firm & Demanding\nI am dissatisfied with the 5G data performance on my mobile line 017642930528. For several months, my download speeds have been restricted to a flat 20 Mbps. This is far below the standard 5G capability and the speeds I am paying for monthly. The problem follows me to every location, proving it is an account-level restriction. I expect a response from a technician explaining why my 5G speeds are being throttled.",
-    "This is a formal complaint regarding the data speeds for my number 017642930528. Despite my phone indicating a 5G connection, I am only receiving 20 Mbps bandwidth. I have been dealing with this slow connection for months without any improvement. I have filled out the Live Check form, but the automated system does not solve this. Please escalate this ticket to the network department for a manual profile override.",
-    "My 5G service has been underperforming for months, capped at exactly 20 Mbps. I am using a 5G-ready device and I am located in areas with excellent O2 coverage. There is no reason for my speeds to be this low unless there is a system error. As a long-term customer, I expect the high-speed data that my contract promises. Please check the bandwidth allocation for 017642930528 and remove any limitations.",
-    "Analytical & Evidence-Based\nI have conducted several speed tests on 017642930528 showing a 20 Mbps limit. Even with \"5G\" displayed on my screen, the data rate is identical to an LTE cap. This behavior has been consistent for months across various cell towers in Germany. It appears my SIM card is not being allowed to access the full 5G spectrum bandwidth. I request a technical reset of my HLR (Home Location Register) data on your end.",
-    "Current network status for 017642930528: 5G signal is strong, but speeds are weak. I am recording a maximum of 20 Mbps download speed in every environment I visit. This has been an ongoing issue for many months and is now becoming unusable. The \"Live Check\" tool shows no local faults, so the error lies within my account. Please verify my data speed entitlement and update my network profile immediately.",
-    "I am reporting a \"Slow Data Connection\" that has persisted for over three months. My 5G speeds are consistently hitting a ceiling of 20 Mbps during all hours. I have cross-referenced this with other O2 users who get much higher speeds nearby. This confirms the issue is specific to my mobile number and not the local towers. Please check for any \"Fair Use\" or technical throttles applied to 017642930528.",
-    "Direct & Direct\nPlease look into the 5G data restriction for my mobile number 017642930528. I am only getting 20 Mbps, which is unacceptable for a modern 5G mobile plan. I have been experiencing this slow speed for several months regardless of location. I have already tried all the basic troubleshooting steps like restarting the phone. I need a network engineer to check the speed configuration on my O2 user profile.",
-    "My 5G data is currently performing like a throttled 4G connection at 20 Mbps. This issue has been present for months and is consistent across all locations. My number is 017642930528 and I have already submitted the online check form. Since the network shows as \"Fine,\" the problem must be my specific SIM profile. Please remove any speed caps and ensure I have full access to the 5G network.",
-    "I am requesting a technical review of the data speeds for line 017642930528. My 5G connection is permanently stuck at 20 Mbps, which is a major bottleneck. This problem has been ongoing for months and I have finally decided to report it. I am paying for high-speed 5G and I am not receiving the service I signed for. Please investigate why my speed is limited and provide a timeline for a fix.",
-    "Service-Oriented\nI am contacting O2 support because my 5G speed is capped at 20 Mbps everywhere. I have been a customer for a long time, but this issue has lasted for many months. My phone shows a 5G icon, but the performance does not match the technology. I have checked my number 017642930528 and my hardware is working perfectly. Could you please check if there is a technical error in my contract data settings?",
-    "Help is needed for my mobile data connection on the number 017642930528. For months, I have been unable to get speeds higher than 20 Mbps on 5G. This happens in the city, at home, and while traveling across the country. I would like to know if there is a known issue with my specific plan or SIM. Please update my network registration so I can utilize the full 5G bandwidth.",
-    "This is my third attempt to resolve the 20 Mbps speed limit on my 5G account. My number is 017642930528 and this slow data has been an issue for many months. It is clear that my 5G access is being restricted by a backend system setting. I am requesting a manual intervention to restore my data speeds to normal. Thank you for looking into this and I look forward to a much faster connection.",
+    "I am reporting slow internet speeds and weak signal at my home address. The data connection is very slow and the signal strength has dropped noticeably. I suspect the nearby base station has a problem. When I go out to other parts of the city or travel to places like Munich, the speed and signal are completely normal. This issue is specific to my home location and points to a local base station fault. Please check and repair the tower serving this area.",
+    "At my home I am experiencing both poor signal strength and very slow mobile internet. This was not the case before and the problem started recently. When I leave and go into the city or to other cities like Munich, everything works perfectly with strong signal and fast data. The issue is clearly with the base station near my home. Please investigate the local tower and restore normal service.",
+    "I am affected by weak signal and slow data speeds at home. The internet is barely usable and the signal keeps dropping. However, when I travel to the city center or other cities such as Munich, the O2 network works without any issues. This confirms the problem is not with my device but with the local base station near my home. I request that the technical team inspect and fix the tower.",
+    "My mobile signal at home has become weak and internet speeds are extremely slow. It used to work well at this location before. I have tested at other places in the city and in Munich where the network is fast and the signal is strong. This tells me the nearby base station is not functioning properly. Please send a technician to check the base station and restore the coverage at my home address.",
+    "I want to report poor signal and slow internet at my home. Both the signal strength and data speed have degraded significantly at this address. The problem does not occur when I am in other areas of the city or when I visit other cities like Munich where O2 works perfectly. I believe the base station serving my home area has a fault. Please prioritize repairing the local tower so the service returns to normal.",
 ]
 
 
@@ -63,8 +54,13 @@ def append_readme():
         f.write("# o2-report\n")
 
 
+NO_OUTAGE_PHRASE = "Unser Netz funktioniert störungsfrei"
+
+
 def classify_result(text):
     t = text.lower()
+    if "störungsfrei" in t:
+        return "ok"
     if "keine störung" in t or "keine stoerung" in t or "keine störungen" in t or "keine stoerungen" in t:
         return "ok"
     if "wartungsarbeiten" in t or "netzarbeiten" in t or "arbeiten" in t or "beeinträchtigungen" in t:
@@ -90,8 +86,23 @@ def click_if_visible(page, locator):
     return False
 
 
+def remove_overlays(page):
+    """Remove Usercentrics cookie banner and sticky nav that block interactions."""
+    try:
+        page.evaluate("""() => {
+            const uc = document.querySelector('#usercentrics-root');
+            if (uc) uc.remove();
+            const nav = document.querySelector('tef-navigation');
+            if (nav) nav.style.display = 'none';
+        }""")
+    except Exception:
+        pass
+
+
 def accept_cookies(page):
-    # Try common consent buttons
+    """Dismiss Usercentrics cookie consent by removing the overlay from the DOM."""
+    remove_overlays(page)
+    # Fallback: standard buttons on the page
     candidates = [
         page.get_by_role("button", name=re.compile(r"(alle|akzeptieren|zustimmen|einverstanden)", re.I)),
         page.get_by_role("button", name=re.compile(r"(accept|agree)", re.I)),
@@ -125,33 +136,17 @@ def select_service(page):
             return
 
 
-def fill_and_submit_form(iframe, full_result_text):
-    # Open the report form
-    btn = iframe.get_by_role("button", name=re.compile(r"jetzt melden", re.I))
-    try:
-        if btn.count() > 0:
-            btn.first.scroll_into_view_if_needed()
-            btn.first.click(timeout=3000, force=True)
-        else:
-            raise Exception("no_button")
-    except Exception:
-        # Sometimes it's a plain div/button without role lookup
-        try:
-            text_btn = iframe.locator("div[role='button']", has_text=re.compile(r"jetzt melden", re.I)).first
-            text_btn.scroll_into_view_if_needed()
-            text_btn.click(timeout=3000, force=True)
-        except Exception:
-            # JS click fallback
-            try:
-                iframe.evaluate(
-                    """() => {
-                        const btns = Array.from(document.querySelectorAll("div[role='button'], button"));
-                        const target = btns.find(b => (b.innerText || "").toLowerCase().includes("jetzt melden"));
-                        if (target) target.click();
-                    }"""
-                )
-            except Exception:
-                return False, "form_button_not_found"
+def fill_and_submit_form(iframe, full_result_text, dry_run=False, phone_override=None):
+    # Open the report form — use JS click because the site's sticky nav bar
+    # (<tef-navigation>) overlays the button and intercepts pointer events.
+    clicked = iframe.evaluate("""() => {
+        const els = Array.from(document.querySelectorAll("div[role='button'], button, a, span"));
+        const target = els.find(el => (el.innerText || "").trim().toLowerCase() === "jetzt melden");
+        if (target) { target.click(); return true; }
+        return false;
+    }""")
+    if not clicked:
+        return False, "form_button_not_found"
 
     # Wait for form to appear (poll for key fields)
     form_ready = False
@@ -162,29 +157,29 @@ def fill_and_submit_form(iframe, full_result_text):
                 break
         except Exception:
             pass
-        try:
-            if iframe.locator("textarea").count() > 0:
-                form_ready = True
-                break
-        except Exception:
-            pass
-        try:
-            if iframe.locator("[role='dialog'], .MuiDialog-root, .MuiDialog-container").count() > 0:
-                form_ready = True
-                break
-        except Exception:
-            pass
         iframe.page.wait_for_timeout(800)
     if not form_ready:
         return False, "form_not_opened"
 
-    def click_input(name, value):
-        try:
-            loc = iframe.locator(f"input[name='{name}'][value='{value}']").first
-            loc.click(timeout=3000, force=True)
-            return True
-        except Exception:
-            return False
+    # Re-remove overlays in case they reappeared
+    remove_overlays(iframe.page)
+    iframe.page.wait_for_timeout(500)
+
+    def click_radio(name, value):
+        """Click a radio's parent label via JS to trigger React state updates."""
+        return iframe.evaluate(
+            """([name, value]) => {
+                const el = document.querySelector(`input[name='${name}'][value='${value}']`);
+                if (!el) return false;
+                // Click the label wrapping this radio to trigger React/MUI properly
+                const label = el.closest('label') || el.parentElement?.querySelector('label');
+                if (label) { label.click(); return true; }
+                el.click();
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+                return true;
+            }""",
+            [name, value],
+        )
 
     def click_label(text_regex):
         try:
@@ -194,79 +189,115 @@ def fill_and_submit_form(iframe, full_result_text):
         except Exception:
             return False
 
-    # Service: Internet (value 30 per provided HTML)
-    if not click_input("category", "30"):
+    # Category: Internet (value=30)
+    if not click_radio("category", "30"):
         click_label(re.compile(r"^Internet$", re.I))
-    # Problem: Langsame Datenverbindung (value 110 per provided HTML)
-    if not click_input("issue", "110"):
+    # Wait for issue options to load (they appear after selecting category)
+    iframe.page.wait_for_timeout(1000)
+    # Issue: Langsame Datenverbindung (appears dynamically after category)
+    if not click_radio("issue", "110"):
         click_label(re.compile(r"Langsame Datenverbindung", re.I))
-    # Frequency: Immer (name=frequency value=30)
-    if not click_input("frequency", "30"):
+    # Frequency: Immer (value=30)
+    if not click_radio("frequency", "30"):
         click_label(re.compile(r"^Immer$", re.I))
-    # Location: Überall (name=location value=50)
-    if not click_input("location", "50"):
-        click_label(re.compile(r"Überall|Ueberall", re.I))
-    # Since: Schon länger (name=customq1 value=30)
-    if not click_input("customq1", "30"):
+    # Location: Im Gebäude (value=10)
+    if not click_radio("location", "10"):
+        click_label(re.compile(r"Im Gebäude|Im Gebaeude", re.I))
+    # Since: Schon länger (value=30)
+    if not click_radio("customq1", "30"):
         click_label(re.compile(r"Schon länger|Schon laenger", re.I))
 
-    # Comment text
+    # Comment text — sanitize special chars the form rejects
+    def sanitize(text):
+        """Replace special Unicode chars with ASCII equivalents."""
+        text = text.replace("\u201E", '"').replace("\u201C", '"')   # „ "
+        text = text.replace("\u201A", "'").replace("\u2018", "'")   # ‚ '
+        text = text.replace("\u201D", '"').replace("\u201F", '"')
+        text = text.replace("\u2019", "'").replace("\u2013", "-")   # ' –
+        text = text.replace("\u2014", "-").replace("\u2026", "...") # — …
+        return text
+
     message = random.choice(TEMPLATES)
-    comment = f"{message}\n\n{full_result_text}"
+    comment = sanitize(f"{message}\n\n{full_result_text}")
     try:
-        textarea = iframe.get_by_label(re.compile(r"Bitte geben Sie ein Beispiel an", re.I))
+        textarea = iframe.locator("textarea#comments").first
+        textarea.click(force=True, timeout=3000)
         textarea.fill(comment)
     except Exception:
         try:
-            textarea = iframe.get_by_placeholder(re.compile(r"Kommentar|Kommentare", re.I))
+            textarea = iframe.locator("textarea").first
+            textarea.click(force=True, timeout=3000)
             textarea.fill(comment)
         except Exception:
-            try:
-                iframe.locator("textarea").first.fill(comment)
-            except Exception:
-                return False, "comment_not_filled"
+            return False, "comment_not_filled"
 
-    # Mobile number
+    # Mobile number — use JS focus + keyboard typing to trigger React state
+    number = phone_override or MOBILE_NUMBER
     try:
-        phone_input = iframe.get_by_role("textbox", name=re.compile(r"mobilfunknummer", re.I))
-        phone_input.fill(MOBILE_NUMBER)
+        # Focus the input via JS inside the iframe to bypass any overlay
+        iframe.evaluate("""() => {
+            const inp = document.querySelector("input[name='customer_mobile']");
+            if (inp) { inp.focus(); inp.value = ''; }
+        }""")
+        iframe.page.wait_for_timeout(300)
+        # Type each digit via keyboard to trigger React onChange events
+        iframe.page.keyboard.type(number, delay=50)
+        iframe.page.wait_for_timeout(300)
     except Exception:
-        try:
-            iframe.locator("input[type='tel']").first.fill(MOBILE_NUMBER)
-        except Exception:
-            return False, "phone_not_filled"
+        return False, "phone_not_filled"
+
+    # --- dry-run: stop here so user can inspect the filled form ---
+    if dry_run:
+        return False, "dry_run_stopped_before_submit"
+
+    # Check for validation errors before submitting
+    iframe.page.wait_for_timeout(500)
+    has_errors = iframe.evaluate("""() => {
+        const errs = document.querySelectorAll('.MuiFormHelperText-root.Mui-error');
+        const visible = Array.from(errs).filter(e => e.offsetParent !== null && e.innerText.trim());
+        return visible.map(e => e.innerText.trim());
+    }""")
+    if has_errors:
+        return False, f"validation_errors: {'; '.join(has_errors)}"
 
     # Submit
-    submit_btn = iframe.get_by_role("button", name=re.compile(r"absenden", re.I))
-    try:
-        submit_btn.scroll_into_view_if_needed()
-    except Exception:
-        pass
+    submit_clicked = iframe.evaluate("""() => {
+        const btns = Array.from(document.querySelectorAll("button, div[role='button']"));
+        const target = btns.find(b => /absenden/i.test(b.innerText || ""));
+        if (target) { target.click(); return true; }
+        return false;
+    }""")
+    if not submit_clicked:
+        submit_btn = iframe.get_by_role("button", name=re.compile(r"absenden", re.I))
+        try:
+            submit_btn.click(force=True, timeout=5000)
+            submit_clicked = True
+        except Exception:
+            return False, "submit_not_clicked"
 
-    if click_if_visible(iframe, submit_btn):
-        confirmation = ""
-        try:
-            iframe.locator("text=Vielen Dank").wait_for(timeout=15000)
-            confirmation = iframe.locator("text=Vielen Dank").first.inner_text()
-            # Try to include full confirmation block
-            try:
-                confirmation = iframe.locator("xpath=//*[contains(., 'Vielen Dank')][1]").inner_text()
-            except Exception:
-                pass
-        except Exception:
-            confirmation = ""
-        return True, confirmation.strip() or "confirmation_not_found"
-    # Retry with force click if button might be covered
+    # Wait for confirmation dialog (MuiDialog with "Vielen Dank")
+    iframe.page.wait_for_timeout(3000)
+
+    # Check if validation errors appeared after submit
+    post_errors = iframe.evaluate("""() => {
+        const errs = document.querySelectorAll('.MuiFormHelperText-root.Mui-error');
+        const visible = Array.from(errs).filter(e => e.offsetParent !== null && e.innerText.trim());
+        return visible.map(e => e.innerText.trim());
+    }""")
+    if post_errors:
+        return False, f"validation_errors: {'; '.join(post_errors)}"
+
+    confirmation = ""
     try:
-        submit_btn.click(force=True, timeout=3000)
-        iframe.locator("text=Vielen Dank").wait_for(timeout=15000)
+        iframe.locator(".MuiDialogContent-root").wait_for(timeout=15000)
+        confirmation = iframe.locator(".MuiDialogContent-root").first.inner_text()
+    except Exception:
         try:
-            confirmation = iframe.locator("xpath=//*[contains(., 'Vielen Dank')][1]").inner_text()
+            iframe.locator("text=Vielen Dank").wait_for(timeout=5000)
+            confirmation = iframe.locator("text=Vielen Dank").first.inner_text()
         except Exception:
             confirmation = ""
-        return True, confirmation.strip() or "confirmation_not_found"
-    except Exception:
-        return False, "submit_not_clicked"
+    return True, confirmation.strip() or "confirmation_not_found"
 
 
 def find_address_input(ctx):
@@ -287,10 +318,10 @@ def find_address_input(ctx):
     return None
 
 
-def run_check():
+def run_check(dry_run=False, headed=False, phone=None):
     with sync_playwright() as p:
         browser = p.chromium.launch(
-            headless=True,
+            headless=not headed,
             args=["--disable-blink-features=AutomationControlled"],
         )
         context = browser.new_context(
@@ -378,11 +409,37 @@ def run_check():
         submit_reason = ""
         if TRIGGER_PHRASE in full_text:
             try:
-                submitted, confirmation = fill_and_submit_form(frame, full_text)
+                submitted, confirmation = fill_and_submit_form(frame, full_text, dry_run=dry_run, phone_override=phone)
                 if not submitted:
                     submit_reason = confirmation
-            except Exception:
+            except Exception as exc:
                 submitted = False
+                submit_reason = f"exception: {exc.__class__.__name__}: {exc}"
+
+        if dry_run:
+            # Take focused screenshots of the filled form for inspection
+            try:
+                frame.locator("input[name='category']").first.scroll_into_view_if_needed()
+                page.wait_for_timeout(300)
+            except Exception:
+                pass
+            top_path = os.path.join(os.path.dirname(LOG_PATH), "dry_run_form_top.png")
+            page.screenshot(path=top_path)
+            print(f"Screenshot (top) saved to {top_path}")
+            try:
+                frame.locator("input[name='customer_mobile']").first.scroll_into_view_if_needed()
+                page.wait_for_timeout(300)
+            except Exception:
+                pass
+            bottom_path = os.path.join(os.path.dirname(LOG_PATH), "dry_run_form_bottom.png")
+            page.screenshot(path=bottom_path)
+            print(f"Screenshot (bottom) saved to {bottom_path}")
+            if headed:
+                print("\n=== DRY RUN: Form filled. Inspect the browser. Press Enter to close. ===")
+                try:
+                    input()
+                except EOFError:
+                    pass
 
         browser.close()
         if submitted:
@@ -399,15 +456,23 @@ def run_check():
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dry-run", action="store_true", help="Fill form but do not submit")
+    parser.add_argument("--headed", action="store_true", help="Run browser in headed (visible) mode")
+    parser.add_argument("--no-log", action="store_true", help="Skip writing to log file")
+    parser.add_argument("--phone", type=str, default=None, help="Override phone number for testing")
+    args = parser.parse_args()
+
     status = "error"
     result_text = ""
     try:
-        status, result_text = run_check()
+        status, result_text = run_check(dry_run=args.dry_run, headed=args.headed, phone=args.phone)
     except Exception as exc:
         result_text = f"error: {exc.__class__.__name__}: {exc}"
 
-    append_log(status, result_text)
-    append_readme()
+    if not args.no_log:
+        append_log(status, result_text)
+        append_readme()
     print(f"[{now_iso()}] status={status} result={result_text}")
 
 

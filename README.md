@@ -42,3 +42,4 @@ Automated O2 Live-Check for **Egger Straße 2a, 94469 Deggendorf**.
 **Notes**
 - Scheduled GitHub Actions runs may be delayed by a few minutes by GitHub.
 - If the form cannot be opened/submitted, the log will include a `SUBMIT_REASON`.
+# o2-report
