@@ -11,7 +11,7 @@ from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeo
 URL = "https://www.o2online.de/netz/netzstoerung/"
 ADDRESS = "Egger Straße, 94469 Deggendorf, Deutschland"
 TIMEZONE = ZoneInfo("Europe/Berlin")
-LOG_PATH = os.path.join("data", "o2_report.csv")
+LOG_PATH = os.path.join("data", "o2_report.md")
 README_PATH = "README.md"
 
 
@@ -22,16 +22,20 @@ def now_iso():
 def ensure_log_header():
     if not os.path.exists(LOG_PATH):
         os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
-        with open(LOG_PATH, "w", encoding="utf-8", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow(["timestamp_berlin", "address", "status", "result_text"])
+        with open(LOG_PATH, "w", encoding="utf-8") as f:
+            f.write("# O2 Live-Check Log\n\n")
+            f.write("| Timestamp (Berlin) | Address | Status | Result |\n")
+            f.write("| --- | --- | --- | --- |\n")
+
+
+def md_escape(text):
+    return text.replace("|", "\\|").replace("\n", " ").strip()
 
 
 def append_log(status, result_text):
     ensure_log_header()
-    with open(LOG_PATH, "a", encoding="utf-8", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow([now_iso(), ADDRESS, status, result_text])
+    with open(LOG_PATH, "a", encoding="utf-8") as f:
+        f.write(f"| {now_iso()} | {md_escape(ADDRESS)} | {md_escape(status)} | {md_escape(result_text)} |\n")
 
 
 def append_readme():
