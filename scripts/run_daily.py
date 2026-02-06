@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeout
 
 URL = "https://www.o2online.de/netz/netzstoerung/"
-ADDRESS = "Egger Straße 2a 94469 Deggendorf"
+ADDRESS = "Egger Straße, 94469 Deggendorf, Deutschland"
 TIMEZONE = ZoneInfo("Europe/Berlin")
 LOG_PATH = os.path.join("data", "o2_report.csv")
 README_PATH = "README.md"
@@ -43,7 +43,7 @@ def classify_result(text):
     t = text.lower()
     if "keine störung" in t or "keine stoerung" in t or "keine störungen" in t or "keine stoerungen" in t:
         return "ok"
-    if "netzarbeiten" in t or "arbeiten" in t:
+    if "wartungsarbeiten" in t or "netzarbeiten" in t or "arbeiten" in t or "beeinträchtigungen" in t:
         return "maintenance"
     if "störung" in t or "stoerung" in t:
         return "outage"
@@ -52,9 +52,27 @@ def classify_result(text):
 
 def extract_relevant_line(text):
     lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
-    keywords = ["keine störung", "keine stoerung", "keine störungen", "keine stoerungen", "störung", "stoerung", "netzarbeiten"]
+    keywords = [
+        "keine störung",
+        "keine stoerung",
+        "keine störungen",
+        "keine stoerungen",
+        "wartungsarbeiten",
+        "netzarbeiten",
+        "beeinträchtigungen",
+        "störung",
+        "stoerung",
+    ]
+    excludes = [
+        "ich bin von dieser störung betroffen",
+        "ich bin von dieser stoerung betroffen",
+        "störung melden",
+        "stoerung melden",
+    ]
     for ln in lines:
         low = ln.lower()
+        if any(e in low for e in excludes):
+            continue
         if any(k in low for k in keywords):
             return ln[:300]
     return ""  # fallback when we cannot find a clear status line
@@ -94,17 +112,31 @@ def open_live_check(page):
             return
 
 
-def find_address_input(page):
+def select_service(page):
+    # Prefer "Internet" as in the UI options
+    candidates = [
+        page.get_by_role("button", name=re.compile(r"^internet$", re.I)),
+        page.get_by_role("button", name=re.compile(r"^empfang$|^sprachtelefonie$|^sms$|^sonstiges$", re.I)),
+    ]
+    for loc in candidates:
+        if click_if_visible(page, loc):
+            return
+
+
+def find_address_input(ctx):
     locators = [
-        page.get_by_role("textbox", name=re.compile(r"adresse|straße|strasse|anschrift", re.I)),
-        page.locator("input[placeholder*='Adresse' i]"),
-        page.locator("input[placeholder*='Straße' i]"),
-        page.locator("input[placeholder*='Strasse' i]"),
-        page.locator("input[type='text']"),
+        ctx.get_by_role("textbox", name=re.compile(r"adresse|straße|strasse|anschrift", re.I)),
+        ctx.locator("input[placeholder*='Adresse' i]"),
+        ctx.locator("input[placeholder*='Straße' i]"),
+        ctx.locator("input[placeholder*='Strasse' i]"),
+        ctx.locator("input[type='text']"),
     ]
     for loc in locators:
-        if loc.count() > 0:
-            return loc.first
+        try:
+            if loc.count() > 0:
+                return loc.first
+        except Exception:
+            continue
     return None
 
 
@@ -116,7 +148,16 @@ def run_check():
         accept_cookies(page)
         open_live_check(page)
 
-        input_box = find_address_input(page)
+        # Live-Check UI is inside an iframe (spatialbuzz)
+        iframe = page.frame_locator("iframe[src*='spatialbuzz']")
+        try:
+            iframe.locator("body").wait_for(timeout=15000)
+        except PlaywrightTimeout:
+            pass
+
+        select_service(iframe)
+
+        input_box = find_address_input(iframe)
         if input_box is None:
             raise RuntimeError("Address input not found")
 
@@ -127,15 +168,39 @@ def run_check():
             page.keyboard.press("Enter")
         except PlaywrightTimeout:
             pass
+        try:
+            page.wait_for_load_state("networkidle", timeout=15000)
+        except PlaywrightTimeout:
+            pass
 
-        # Give the page time to render results
-        page.wait_for_timeout(5000)
+        # Trigger search if there is a search button
+        search_btn = iframe.get_by_role("button", name=re.compile(r"suchen|suche|prüfen|pruefen", re.I))
+        if not click_if_visible(page, search_btn):
+            # Try the button closest to the address input (magnifier icon)
+            try:
+                near_btn = input_box.locator("xpath=ancestor::div[1]//button").first
+                near_btn.click(timeout=3000)
+            except Exception:
+                pass
+
+        # Wait for result section
+        page.wait_for_timeout(2000)
+        result_text = ""
+        try:
+            iframe.get_by_text(re.compile(r"Ergebnis für", re.I)).first.wait_for(timeout=20000)
+            result_heading = iframe.get_by_text(re.compile(r"Ergebnis für", re.I)).first
+            container = result_heading.locator(
+                "xpath=ancestor::*[self::section or self::div][1]"
+            )
+            result_text = container.inner_text()
+        except Exception:
+            result_text = ""
 
         body_text = page.inner_text("body")
-        line = extract_relevant_line(body_text)
-        status = classify_result(line or body_text)
+        line = extract_relevant_line(result_text or body_text)
+        status = classify_result(line or result_text or body_text)
         if not line:
-            line = (body_text[:300]).replace("\n", " ")
+            line = ((result_text or body_text)[:300]).replace("\n", " ")
 
         browser.close()
         return status, line
