@@ -29,7 +29,7 @@ def ensure_log_header():
 
 
 def md_escape(text):
-    return text.replace("|", "\\|").replace("\n", " ").strip()
+    return text.replace("|", "\\|").replace("\n", "<br>").strip()
 
 
 def append_log(status, result_text):
@@ -54,32 +54,9 @@ def classify_result(text):
     return "unknown"
 
 
-def extract_relevant_line(text):
-    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
-    keywords = [
-        "keine störung",
-        "keine stoerung",
-        "keine störungen",
-        "keine stoerungen",
-        "wartungsarbeiten",
-        "netzarbeiten",
-        "beeinträchtigungen",
-        "störung",
-        "stoerung",
-    ]
-    excludes = [
-        "ich bin von dieser störung betroffen",
-        "ich bin von dieser stoerung betroffen",
-        "störung melden",
-        "stoerung melden",
-    ]
-    for ln in lines:
-        low = ln.lower()
-        if any(e in low for e in excludes):
-            continue
-        if any(k in low for k in keywords):
-            return ln[:300]
-    return ""  # fallback when we cannot find a clear status line
+def extract_relevant_text(text):
+    # Keep full result text; it's already scoped to the result container when available.
+    return "\n".join([ln.strip() for ln in text.splitlines() if ln.strip()]).strip()
 
 
 def click_if_visible(page, locator):
@@ -201,13 +178,13 @@ def run_check():
             result_text = ""
 
         body_text = page.inner_text("body")
-        line = extract_relevant_line(result_text or body_text)
-        status = classify_result(line or result_text or body_text)
-        if not line:
-            line = ((result_text or body_text)[:300]).replace("\n", " ")
+        full_text = extract_relevant_text(result_text or body_text)
+        status = classify_result(full_text)
+        if not full_text:
+            full_text = ((result_text or body_text)[:2000]).replace("\n", " ").strip()
 
         browser.close()
-        return status, line
+        return status, full_text
 
 
 def main():
