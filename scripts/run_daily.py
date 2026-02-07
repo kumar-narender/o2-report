@@ -35,18 +35,21 @@ def ensure_log_header():
         os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
         with open(LOG_PATH, "w", encoding="utf-8") as f:
             f.write("# O2 Live-Check Log\n\n")
-            f.write("| Timestamp (Berlin) | Address | Status | Result |\n")
-            f.write("| --- | --- | --- | --- |\n")
+            f.write("| Timestamp (Berlin) | Address | Status | Form Submitted | Reason | Message Sent |\n")
+            f.write("| --- | --- | --- | --- | --- | --- |\n")
 
 
 def md_escape(text):
     return text.replace("|", "\\|").replace("\n", "<br>").strip()
 
 
-def append_log(status, result_text):
+def append_log(status, form_submitted, reason, message_sent):
     ensure_log_header()
     with open(LOG_PATH, "a", encoding="utf-8") as f:
-        f.write(f"| {now_iso()} | {md_escape(ADDRESS)} | {md_escape(status)} | {md_escape(result_text)} |\n")
+        f.write(
+            f"| {now_iso()} | {md_escape(ADDRESS)} | {md_escape(status)}"
+            f" | {md_escape(form_submitted)} | {md_escape(reason)} | {md_escape(message_sent)} |\n"
+        )
 
 
 def append_readme():
@@ -146,7 +149,7 @@ def fill_and_submit_form(iframe, full_result_text, dry_run=False, phone_override
         return false;
     }""")
     if not clicked:
-        return False, "form_button_not_found"
+        return False, "form_button_not_found", ""
 
     # Wait for form to appear (poll for key fields)
     form_ready = False
@@ -159,7 +162,7 @@ def fill_and_submit_form(iframe, full_result_text, dry_run=False, phone_override
             pass
         iframe.page.wait_for_timeout(800)
     if not form_ready:
-        return False, "form_not_opened"
+        return False, "form_not_opened", ""
 
     # Re-remove overlays in case they reappeared
     remove_overlays(iframe.page)
@@ -229,7 +232,7 @@ def fill_and_submit_form(iframe, full_result_text, dry_run=False, phone_override
             textarea.click(force=True, timeout=3000)
             textarea.fill(comment)
         except Exception:
-            return False, "comment_not_filled"
+            return False, "comment_not_filled", ""
 
     # Mobile number — use JS focus + keyboard typing to trigger React state
     number = phone_override or MOBILE_NUMBER
@@ -244,11 +247,11 @@ def fill_and_submit_form(iframe, full_result_text, dry_run=False, phone_override
         iframe.page.keyboard.type(number, delay=50)
         iframe.page.wait_for_timeout(300)
     except Exception:
-        return False, "phone_not_filled"
+        return False, "phone_not_filled", message
 
     # --- dry-run: stop here so user can inspect the filled form ---
     if dry_run:
-        return False, "dry_run_stopped_before_submit"
+        return False, "dry_run_stopped_before_submit", message
 
     # Check for validation errors before submitting
     iframe.page.wait_for_timeout(500)
@@ -258,7 +261,7 @@ def fill_and_submit_form(iframe, full_result_text, dry_run=False, phone_override
         return visible.map(e => e.innerText.trim());
     }""")
     if has_errors:
-        return False, f"validation_errors: {'; '.join(has_errors)}"
+        return False, f"validation_errors: {'; '.join(has_errors)}", message
 
     # Submit
     submit_clicked = iframe.evaluate("""() => {
@@ -273,7 +276,7 @@ def fill_and_submit_form(iframe, full_result_text, dry_run=False, phone_override
             submit_btn.click(force=True, timeout=5000)
             submit_clicked = True
         except Exception:
-            return False, "submit_not_clicked"
+            return False, "submit_not_clicked", message
 
     # Wait for confirmation dialog (MuiDialog with "Vielen Dank")
     iframe.page.wait_for_timeout(3000)
@@ -285,7 +288,7 @@ def fill_and_submit_form(iframe, full_result_text, dry_run=False, phone_override
         return visible.map(e => e.innerText.trim());
     }""")
     if post_errors:
-        return False, f"validation_errors: {'; '.join(post_errors)}"
+        return False, f"validation_errors: {'; '.join(post_errors)}", message
 
     confirmation = ""
     try:
@@ -297,7 +300,7 @@ def fill_and_submit_form(iframe, full_result_text, dry_run=False, phone_override
             confirmation = iframe.locator("text=Vielen Dank").first.inner_text()
         except Exception:
             confirmation = ""
-    return True, confirmation.strip() or "confirmation_not_found"
+    return True, confirmation.strip() or "confirmation_not_found", message
 
 
 def find_address_input(ctx):
@@ -407,11 +410,12 @@ def run_check(dry_run=False, headed=False, phone=None):
         submitted = False
         confirmation = ""
         submit_reason = ""
+        message_sent = ""
         is_monday = datetime.now(TIMEZONE).weekday() == 0  # 0 = Monday
         if TRIGGER_PHRASE in full_text:
             if is_monday or dry_run:
                 try:
-                    submitted, confirmation = fill_and_submit_form(frame, full_text, dry_run=dry_run, phone_override=phone)
+                    submitted, confirmation, message_sent = fill_and_submit_form(frame, full_text, dry_run=dry_run, phone_override=phone)
                     if not submitted:
                         submit_reason = confirmation
                 except Exception as exc:
@@ -446,17 +450,10 @@ def run_check(dry_run=False, headed=False, phone=None):
                     pass
 
         browser.close()
-        if submitted:
-            if confirmation:
-                full_text = f"{full_text}\n\nFORM_SUBMITTED: yes\nCONFIRMATION: {confirmation}"
-            else:
-                full_text = f"{full_text}\n\nFORM_SUBMITTED: yes"
-        else:
-            if submit_reason:
-                full_text = f"{full_text}\n\nFORM_SUBMITTED: no\nSUBMIT_REASON: {submit_reason}"
-            else:
-                full_text = f"{full_text}\n\nFORM_SUBMITTED: no"
-        return status, full_text
+
+        form_submitted = "yes" if submitted else "no"
+        reason = confirmation if submitted else submit_reason
+        return status, form_submitted, reason, message_sent
 
 
 def main():
@@ -468,16 +465,18 @@ def main():
     args = parser.parse_args()
 
     status = "error"
-    result_text = ""
+    form_submitted = "no"
+    reason = ""
+    message_sent = ""
     try:
-        status, result_text = run_check(dry_run=args.dry_run, headed=args.headed, phone=args.phone)
+        status, form_submitted, reason, message_sent = run_check(dry_run=args.dry_run, headed=args.headed, phone=args.phone)
     except Exception as exc:
-        result_text = f"error: {exc.__class__.__name__}: {exc}"
+        reason = f"error: {exc.__class__.__name__}: {exc}"
 
     if not args.no_log:
-        append_log(status, result_text)
+        append_log(status, form_submitted, reason, message_sent)
         append_readme()
-    print(f"[{now_iso()}] status={status} result={result_text}")
+    print(f"[{now_iso()}] status={status} form_submitted={form_submitted} reason={reason}")
 
 
 if __name__ == "__main__":
