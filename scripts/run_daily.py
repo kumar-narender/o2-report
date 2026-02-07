@@ -30,13 +30,19 @@ def now_iso():
     return datetime.now(TIMEZONE).isoformat(timespec="seconds")
 
 
+def now_readable():
+    """Human-friendly timestamp like 'Date: 7 Feb 2026 Time: 01:06 TZ: Berlin'."""
+    dt = datetime.now(TIMEZONE)
+    return dt.strftime("Date: %-d %b %Y Time: %H:%M TZ: Berlin")
+
+
 def ensure_log_header():
     if not os.path.exists(LOG_PATH):
         os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
         with open(LOG_PATH, "w", encoding="utf-8") as f:
             f.write("# O2 Live-Check Log\n\n")
-            f.write("| Timestamp (Berlin) | Address | Status | Form Submitted | Reason | Message Sent |\n")
-            f.write("| --- | --- | --- | --- | --- | --- |\n")
+            f.write("| Date | Time | TZ | Address | Status | Form Submitted | Reason | Message Sent |\n")
+            f.write("| --- | --- | --- | --- | --- | --- | --- | --- |\n")
 
 
 def md_escape(text):
@@ -45,9 +51,13 @@ def md_escape(text):
 
 def append_log(status, form_submitted, reason, message_sent):
     ensure_log_header()
+    dt = datetime.now(TIMEZONE)
+    date_str = dt.strftime("%-d %b %Y")
+    time_str = dt.strftime("%H:%M")
     with open(LOG_PATH, "a", encoding="utf-8") as f:
         f.write(
-            f"| {now_iso()} | {md_escape(ADDRESS)} | {md_escape(status)}"
+            f"| {date_str} | {time_str} | Berlin"
+            f" | {md_escape(ADDRESS)} | {md_escape(status)}"
             f" | {md_escape(form_submitted)} | {md_escape(reason)} | {md_escape(message_sent)} |\n"
         )
 
