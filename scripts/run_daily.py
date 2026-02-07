@@ -331,7 +331,7 @@ def find_address_input(ctx):
     return None
 
 
-def run_check(dry_run=False, headed=False, phone=None):
+def run_check(dry_run=False, headed=False, phone=None, force_submit=False):
     with sync_playwright() as p:
         browser = p.chromium.launch(
             headless=not headed,
@@ -423,7 +423,7 @@ def run_check(dry_run=False, headed=False, phone=None):
         message_sent = ""
         is_monday = datetime.now(TIMEZONE).weekday() == 0  # 0 = Monday
         if TRIGGER_PHRASE in full_text:
-            if is_monday or dry_run:
+            if is_monday or dry_run or force_submit:
                 try:
                     submitted, confirmation, message_sent = fill_and_submit_form(frame, full_text, dry_run=dry_run, phone_override=phone)
                     if not submitted:
@@ -472,6 +472,7 @@ def main():
     parser.add_argument("--headed", action="store_true", help="Run browser in headed (visible) mode")
     parser.add_argument("--no-log", action="store_true", help="Skip writing to log file")
     parser.add_argument("--phone", type=str, default=None, help="Override phone number for testing")
+    parser.add_argument("--force-submit", action="store_true", help="Force form submission even if not Monday")
     args = parser.parse_args()
 
     status = "error"
@@ -480,7 +481,7 @@ def main():
     reason = ""
     message_sent = ""
     try:
-        status, result_text, form_submitted, reason, message_sent = run_check(dry_run=args.dry_run, headed=args.headed, phone=args.phone)
+        status, result_text, form_submitted, reason, message_sent = run_check(dry_run=args.dry_run, headed=args.headed, phone=args.phone, force_submit=args.force_submit)
     except Exception as exc:
         reason = f"error: {exc.__class__.__name__}: {exc}"
 
