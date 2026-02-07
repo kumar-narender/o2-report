@@ -41,15 +41,15 @@ def ensure_log_header():
         os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
         with open(LOG_PATH, "w", encoding="utf-8") as f:
             f.write("# O2 Live-Check Log\n\n")
-            f.write("| Date | Time | TZ | Address | Status | Form Submitted | Reason | Message Sent |\n")
-            f.write("| --- | --- | --- | --- | --- | --- | --- | --- |\n")
+            f.write("| Date | Time | TZ | Address | Status | Result | Form Submitted | Reason | Message Sent |\n")
+            f.write("| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n")
 
 
 def md_escape(text):
     return text.replace("|", "\\|").replace("\n", "<br>").strip()
 
 
-def append_log(status, form_submitted, reason, message_sent):
+def append_log(status, result_text, form_submitted, reason, message_sent):
     ensure_log_header()
     dt = datetime.now(TIMEZONE)
     date_str = dt.strftime("%-d %b %Y")
@@ -57,7 +57,7 @@ def append_log(status, form_submitted, reason, message_sent):
     with open(LOG_PATH, "a", encoding="utf-8") as f:
         f.write(
             f"| {date_str} | {time_str} | Berlin"
-            f" | {md_escape(ADDRESS)} | {md_escape(status)}"
+            f" | {md_escape(ADDRESS)} | {md_escape(status)} | {md_escape(result_text)}"
             f" | {md_escape(form_submitted)} | {md_escape(reason)} | {md_escape(message_sent)} |\n"
         )
 
@@ -463,7 +463,7 @@ def run_check(dry_run=False, headed=False, phone=None):
 
         form_submitted = "yes" if submitted else "no"
         reason = confirmation if submitted else submit_reason
-        return status, form_submitted, reason, message_sent
+        return status, full_text, form_submitted, reason, message_sent
 
 
 def main():
@@ -475,16 +475,17 @@ def main():
     args = parser.parse_args()
 
     status = "error"
+    result_text = ""
     form_submitted = "no"
     reason = ""
     message_sent = ""
     try:
-        status, form_submitted, reason, message_sent = run_check(dry_run=args.dry_run, headed=args.headed, phone=args.phone)
+        status, result_text, form_submitted, reason, message_sent = run_check(dry_run=args.dry_run, headed=args.headed, phone=args.phone)
     except Exception as exc:
         reason = f"error: {exc.__class__.__name__}: {exc}"
 
     if not args.no_log:
-        append_log(status, form_submitted, reason, message_sent)
+        append_log(status, result_text, form_submitted, reason, message_sent)
         append_readme()
     print(f"[{now_iso()}] status={status} form_submitted={form_submitted} reason={reason}")
 
