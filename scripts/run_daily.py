@@ -77,7 +77,8 @@ def was_submitted_today():
             last_date = f.read().strip()
         today = datetime.now(TIMEZONE).date().isoformat()
         return last_date == today
-    except Exception:
+    except Exception as e:
+        print(f"Warning: Failed to read last submit date: {e}", file=sys.stderr)
         return False
 
 
@@ -88,8 +89,8 @@ def mark_submitted_today():
         today = datetime.now(TIMEZONE).date().isoformat()
         with open(LAST_SUBMIT_PATH, "w", encoding="utf-8") as f:
             f.write(today)
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"Warning: Failed to write last submit date: {e}", file=sys.stderr)
 
 
 NO_OUTAGE_PHRASE = "Unser Netz funktioniert störungsfrei"
