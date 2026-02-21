@@ -15,6 +15,7 @@ MOBILE_NUMBER = "01797568645"
 TIMEZONE = ZoneInfo("Europe/Berlin")
 LOG_PATH = os.path.join("data", "o2_report.md")
 README_PATH = "README.md"
+LAST_SUBMIT_PATH = os.path.join("data", ".last_submit_date")
 TRIGGER_PHRASE = "Eine Basisstation in der Nähe funktioniert im Moment nicht einwandfrei."
 
 TEMPLATES = [
@@ -65,6 +66,31 @@ def append_log(status, result_text, form_submitted, reason, message_sent):
 def append_readme():
     with open(README_PATH, "a", encoding="utf-8") as f:
         f.write("# o2-report\n")
+
+
+def was_submitted_today():
+    """Check if a form was already submitted today."""
+    if not os.path.exists(LAST_SUBMIT_PATH):
+        return False
+    try:
+        with open(LAST_SUBMIT_PATH, "r", encoding="utf-8") as f:
+            last_date = f.read().strip()
+        today = datetime.now(TIMEZONE).date().isoformat()
+        return last_date == today
+    except Exception as e:
+        print(f"Warning: Failed to read last submit date: {e}", file=sys.stderr)
+        return False
+
+
+def mark_submitted_today():
+    """Mark that a form was submitted today."""
+    try:
+        os.makedirs(os.path.dirname(LAST_SUBMIT_PATH), exist_ok=True)
+        today = datetime.now(TIMEZONE).date().isoformat()
+        with open(LAST_SUBMIT_PATH, "w", encoding="utf-8") as f:
+            f.write(today)
+    except Exception as e:
+        print(f"Warning: Failed to write last submit date: {e}", file=sys.stderr)
 
 
 NO_OUTAGE_PHRASE = "Unser Netz funktioniert störungsfrei"
@@ -424,13 +450,20 @@ def run_check(dry_run=False, headed=False, phone=None, force_submit=False):
         is_monday = datetime.now(TIMEZONE).weekday() == 0  # 0 = Monday
         if TRIGGER_PHRASE in full_text:
             if is_monday or dry_run or force_submit:
-                try:
-                    submitted, confirmation, message_sent = fill_and_submit_form(frame, full_text, dry_run=dry_run, phone_override=phone)
-                    if not submitted:
-                        submit_reason = confirmation
-                except Exception as exc:
-                    submitted = False
-                    submit_reason = f"exception: {exc.__class__.__name__}: {exc}"
+                # Check if already submitted today (only for Monday submissions, not for force_submit)
+                if is_monday and not dry_run and not force_submit and was_submitted_today():
+                    submit_reason = "already_submitted_today"
+                else:
+                    try:
+                        submitted, confirmation, message_sent = fill_and_submit_form(frame, full_text, dry_run=dry_run, phone_override=phone)
+                        if not submitted:
+                            submit_reason = confirmation
+                        elif not dry_run:
+                            # Mark as submitted only if actually submitted (not dry-run)
+                            mark_submitted_today()
+                    except Exception as exc:
+                        submitted = False
+                        submit_reason = f"exception: {exc.__class__.__name__}: {exc}"
             else:
                 submit_reason = "outage_detected_but_form_only_on_mondays"
 
