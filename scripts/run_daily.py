@@ -421,9 +421,10 @@ def run_check(dry_run=False, headed=False, phone=None, force_submit=False):
         confirmation = ""
         submit_reason = ""
         message_sent = ""
-        is_monday = datetime.now(TIMEZONE).weekday() == 0  # 0 = Monday
+        weekday = datetime.now(TIMEZONE).weekday()
+        is_report_day = weekday in (0, 3)  # 0 = Monday, 3 = Thursday
         if TRIGGER_PHRASE in full_text:
-            if is_monday or dry_run or force_submit:
+            if is_report_day or dry_run or force_submit:
                 try:
                     submitted, confirmation, message_sent = fill_and_submit_form(frame, full_text, dry_run=dry_run, phone_override=phone)
                     if not submitted:
@@ -432,7 +433,7 @@ def run_check(dry_run=False, headed=False, phone=None, force_submit=False):
                     submitted = False
                     submit_reason = f"exception: {exc.__class__.__name__}: {exc}"
             else:
-                submit_reason = "outage_detected_but_form_only_on_mondays"
+                submit_reason = "outage_detected_but_form_only_on_mondays_and_thursdays"
 
         if dry_run:
             # Take focused screenshots of the filled form for inspection
