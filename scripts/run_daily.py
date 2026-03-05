@@ -11,7 +11,8 @@ from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeo
 
 URL = "https://www.o2online.de/netz/netzstoerung/"
 ADDRESS = "Egger Straße, 94469 Deggendorf, Deutschland"
-MOBILE_NUMBER = "01797568645"
+MOBILE_NUMBER_MONDAY = "017642930528"
+MOBILE_NUMBER_THURSDAY = "01797568645"
 TIMEZONE = ZoneInfo("Europe/Berlin")
 LOG_PATH = os.path.join("data", "o2_report.md")
 README_PATH = "README.md"
@@ -426,10 +427,11 @@ def run_check(dry_run=False, headed=False, phone=None, force_submit=False):
         message_sent = ""
         weekday = datetime.now(TIMEZONE).weekday()
         is_report_day = weekday in (0, 3)  # 0 = Monday, 3 = Thursday
+        phone_for_day = phone or (MOBILE_NUMBER_MONDAY if weekday == 0 else MOBILE_NUMBER_THURSDAY)
         if any(phrase in full_text for phrase in TRIGGER_PHRASES):
             if is_report_day or dry_run or force_submit:
                 try:
-                    submitted, confirmation, message_sent = fill_and_submit_form(frame, full_text, dry_run=dry_run, phone_override=phone)
+                    submitted, confirmation, message_sent = fill_and_submit_form(frame, full_text, dry_run=dry_run, phone_override=phone_for_day)
                     if not submitted:
                         submit_reason = confirmation
                 except Exception as exc:
