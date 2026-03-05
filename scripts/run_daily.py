@@ -15,7 +15,10 @@ MOBILE_NUMBER = "01797568645"
 TIMEZONE = ZoneInfo("Europe/Berlin")
 LOG_PATH = os.path.join("data", "o2_report.md")
 README_PATH = "README.md"
-TRIGGER_PHRASE = "Eine Basisstation in der Nähe funktioniert im Moment nicht einwandfrei."
+TRIGGER_PHRASES = [
+    "Eine Basisstation in der Nähe funktioniert im Moment nicht einwandfrei.",
+    "Eine Basisstation in der Nähe meldet Einschränkungen.",
+]
 
 TEMPLATES = [
     "I am reporting slow internet speeds and weak signal at my home address. The data connection is very slow and the signal strength has dropped noticeably. I suspect the nearby base station has a problem. When I go out to other parts of the city or travel to places like Munich, the speed and signal are completely normal. This issue is specific to my home location and points to a local base station fault. Please check and repair the tower serving this area.",
@@ -423,7 +426,7 @@ def run_check(dry_run=False, headed=False, phone=None, force_submit=False):
         message_sent = ""
         weekday = datetime.now(TIMEZONE).weekday()
         is_report_day = weekday in (0, 3)  # 0 = Monday, 3 = Thursday
-        if TRIGGER_PHRASE in full_text:
+        if any(phrase in full_text for phrase in TRIGGER_PHRASES):
             if is_report_day or dry_run or force_submit:
                 try:
                     submitted, confirmation, message_sent = fill_and_submit_form(frame, full_text, dry_run=dry_run, phone_override=phone)
