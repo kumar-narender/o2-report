@@ -66,6 +66,24 @@ def append_log(status, result_text, form_submitted, reason, message_sent):
         )
 
 
+def already_submitted_today():
+    """Return True if a successful form submission is already recorded for today."""
+    if not os.path.exists(LOG_PATH):
+        return False
+    dt = datetime.now(TIMEZONE)
+    today_str = dt.strftime("%-d %b %Y")
+    try:
+        with open(LOG_PATH, "r", encoding="utf-8") as f:
+            for line in f:
+                parts = [p.strip() for p in line.split("|")]
+                # Table columns: '' | Date | Time | TZ | Address | Status | Result | Form Submitted | Reason | Message Sent | ''
+                if len(parts) >= 9 and parts[1] == today_str and parts[7] == "yes":
+                    return True
+    except Exception:
+        pass
+    return False
+
+
 def append_readme():
     with open(README_PATH, "a", encoding="utf-8") as f:
         f.write("# o2-report\n")
@@ -430,13 +448,16 @@ def run_check(dry_run=False, headed=False, phone=None, force_submit=False):
         phone_for_day = phone or (MOBILE_NUMBER_MONDAY if weekday == 0 else MOBILE_NUMBER_THURSDAY)
         if any(phrase in full_text for phrase in TRIGGER_PHRASES):
             if is_report_day or dry_run or force_submit:
-                try:
-                    submitted, confirmation, message_sent = fill_and_submit_form(frame, full_text, dry_run=dry_run, phone_override=phone_for_day)
-                    if not submitted:
-                        submit_reason = confirmation
-                except Exception as exc:
-                    submitted = False
-                    submit_reason = f"exception: {exc.__class__.__name__}: {exc}"
+                if not dry_run and not force_submit and already_submitted_today():
+                    submit_reason = "already_submitted_today"
+                else:
+                    try:
+                        submitted, confirmation, message_sent = fill_and_submit_form(frame, full_text, dry_run=dry_run, phone_override=phone_for_day)
+                        if not submitted:
+                            submit_reason = confirmation
+                    except Exception as exc:
+                        submitted = False
+                        submit_reason = f"exception: {exc.__class__.__name__}: {exc}"
             else:
                 submit_reason = "outage_detected_but_form_only_on_mondays_and_thursdays"
 
