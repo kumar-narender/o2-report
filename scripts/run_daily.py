@@ -2,42 +2,25 @@
 import argparse
 import os
 import re
-import sys
-import random
+from collections import defaultdict
 from datetime import datetime
 from zoneinfo import ZoneInfo
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeout
 
 URL = "https://www.o2online.de/netz/netzstoerung/"
 ADDRESS = "Egger Straße, 94469 Deggendorf, Deutschland"
-MOBILE_NUMBER_MONDAY = "017642930528"
-MOBILE_NUMBER_THURSDAY = "01797568645"
 TIMEZONE = ZoneInfo("Europe/Berlin")
 LOG_PATH = os.path.join("data", "o2_report.md")
-README_PATH = "README.md"
-TRIGGER_PHRASES = [
-    "Eine Basisstation in der Nähe funktioniert im Moment nicht einwandfrei.",
-    "Eine Basisstation in der Nähe meldet Einschränkungen.",
-]
-
-TEMPLATES = [
-    "I am reporting slow internet speeds and weak signal at my home address. The data connection is very slow and the signal strength has dropped noticeably. I suspect the nearby base station has a problem. When I go out to other parts of the city or travel to places like Munich, the speed and signal are completely normal. This issue is specific to my home location and points to a local base station fault. Please check and repair the tower serving this area.",
-    "At my home I am experiencing both poor signal strength and very slow mobile internet. This was not the case before and the problem started recently. When I leave and go into the city or to other cities like Munich, everything works perfectly with strong signal and fast data. The issue is clearly with the base station near my home. Please investigate the local tower and restore normal service.",
-    "I am affected by weak signal and slow data speeds at home. The internet is barely usable and the signal keeps dropping. However, when I travel to the city center or other cities such as Munich, the O2 network works without any issues. This confirms the problem is not with my device but with the local base station near my home. I request that the technical team inspect and fix the tower.",
-    "My mobile signal at home has become weak and internet speeds are extremely slow. It used to work well at this location before. I have tested at other places in the city and in Munich where the network is fast and the signal is strong. This tells me the nearby base station is not functioning properly. Please send a technician to check the base station and restore the coverage at my home address.",
-    "I want to report poor signal and slow internet at my home. Both the signal strength and data speed have degraded significantly at this address. The problem does not occur when I am in other areas of the city or when I visit other cities like Munich where O2 works perfectly. I believe the base station serving my home area has a fault. Please prioritize repairing the local tower so the service returns to normal.",
-]
 
 
 def now_iso():
     return datetime.now(TIMEZONE).isoformat(timespec="seconds")
 
-
-def now_readable():
-    """Human-friendly timestamp like 'Date: 7 Feb 2026 Time: 01:06 TZ: Berlin'."""
-    dt = datetime.now(TIMEZONE)
-    return dt.strftime("Date: %-d %b %Y Time: %H:%M TZ: Berlin")
 
 
 def ensure_log_header():
@@ -45,33 +28,150 @@ def ensure_log_header():
         os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
         with open(LOG_PATH, "w", encoding="utf-8") as f:
             f.write("# O2 Live-Check Log\n\n")
-            f.write("| Date | Time | TZ | Address | Status | Result | Form Submitted | Reason | Message Sent |\n")
-            f.write("| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n")
+            f.write("| Date | Time | TZ | Address | Status | Result |\n")
+            f.write("| --- | --- | --- | --- | --- | --- |\n")
 
 
 def md_escape(text):
     return text.replace("|", "\\|").replace("\n", "<br>").strip()
 
 
-def append_log(status, result_text, form_submitted, reason, message_sent):
+MONTH_PARSE = {
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
+    "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12,
+}
+
+CHART_PATH = os.path.join("data", "monthly_chart.png")
+
+
+def parse_rows(content):
+    """Parse log table rows into list of (date_str, status) tuples."""
+    rows = []
+    for line in content.split("\n"):
+        if not line.startswith("|"):
+            continue
+        if line.startswith("| ---") or line.startswith("| Date |"):
+            continue
+        cols = [c.strip() for c in line.split("|")]
+        if len(cols) > 5:
+            rows.append((cols[1], cols[5].lower()))  # date_str, status
+    return rows
+
+
+def parse_month_key(date_str):
+    """Turn '7 Feb 2026' into '2026-02'."""
+    parts = date_str.strip().split()
+    if len(parts) == 3:
+        mon = MONTH_PARSE.get(parts[1].lower()[:3])
+        if mon:
+            return f"{parts[2]}-{mon:02d}"
+    return None
+
+
+def generate_chart(monthly):
+    """Generate a monthly bar chart: works vs not-works, saved as PNG."""
+    months = sorted(monthly.keys())
+    works = [monthly[m]["ok"] for m in months]
+    not_works = [monthly[m]["not_ok"] for m in months]
+    labels = [datetime.strptime(m, "%Y-%m").strftime("%b %Y") for m in months]
+
+    x = range(len(months))
+    width = 0.35
+
+    fig, ax = plt.subplots(figsize=(max(6, len(months) * 1.2), 4))
+    bars_ok = ax.bar([i - width / 2 for i in x], works, width, label="Works (ok)", color="#4caf50")
+    bars_bad = ax.bar([i + width / 2 for i in x], not_works, width, label="Not working", color="#f44336")
+
+    # Add count labels on bars
+    for bar in bars_ok:
+        h = bar.get_height()
+        if h > 0:
+            ax.text(bar.get_x() + bar.get_width() / 2, h + 0.3, str(int(h)),
+                    ha="center", va="bottom", fontsize=9)
+    for bar in bars_bad:
+        h = bar.get_height()
+        if h > 0:
+            ax.text(bar.get_x() + bar.get_width() / 2, h + 0.3, str(int(h)),
+                    ha="center", va="bottom", fontsize=9)
+
+    ax.set_ylabel("Checks")
+    ax.set_title("O2 Network Status — Monthly")
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(labels, rotation=45, ha="right")
+    ax.legend()
+    ax.set_ylim(bottom=0)
+    fig.tight_layout()
+    fig.savefig(CHART_PATH, dpi=120)
+    plt.close(fig)
+
+
+def append_log(status, result_text):
     ensure_log_header()
     dt = datetime.now(TIMEZONE)
     date_str = dt.strftime("%-d %b %Y")
     time_str = dt.strftime("%H:%M")
-    with open(LOG_PATH, "a", encoding="utf-8") as f:
-        f.write(
-            f"| {date_str} | {time_str} | Berlin"
-            f" | {md_escape(ADDRESS)} | {md_escape(status)} | {md_escape(result_text)}"
-            f" | {md_escape(form_submitted)} | {md_escape(reason)} | {md_escape(message_sent)} |\n"
-        )
 
+    # Read existing content and strip any old summary
+    with open(LOG_PATH, "r", encoding="utf-8") as f:
+        content = f.read()
+    summary_marker = "\n## Summary\n"
+    if summary_marker in content:
+        content = content[: content.index(summary_marker)]
 
-def append_readme():
-    with open(README_PATH, "a", encoding="utf-8") as f:
-        f.write("# o2-report\n")
+    # Append new row
+    row = (
+        f"| {date_str} | {time_str} | Berlin"
+        f" | {md_escape(ADDRESS)} | {md_escape(status)} | {md_escape(result_text)} |\n"
+    )
+    content += row
 
+    # Parse all rows for counts
+    rows = parse_rows(content)
 
-NO_OUTAGE_PHRASE = "Unser Netz funktioniert störungsfrei"
+    # Overall counts
+    counts = {"ok": 0, "outage": 0, "maintenance": 0, "unknown": 0, "error": 0}
+    # Monthly counts
+    monthly = defaultdict(lambda: {"ok": 0, "not_ok": 0})
+    for date_s, s in rows:
+        if s in counts:
+            counts[s] += 1
+        mk = parse_month_key(date_s)
+        if mk:
+            if s == "ok":
+                monthly[mk]["ok"] += 1
+            else:
+                monthly[mk]["not_ok"] += 1
+
+    total = sum(counts.values())
+
+    # Build summary section
+    summary = summary_marker
+    summary += f"\n**Total checks:** {total}\n\n"
+    summary += "| Status | Count |\n| --- | --- |\n"
+    for s, c in counts.items():
+        if c > 0:
+            summary += f"| {s} | {c} |\n"
+
+    # Monthly breakdown table
+    summary += "\n### Monthly Breakdown\n\n"
+    summary += "| Month | Works (ok) | Not Working | Total |\n"
+    summary += "| --- | --- | --- | --- |\n"
+    for mk in sorted(monthly.keys()):
+        label = datetime.strptime(mk, "%Y-%m").strftime("%b %Y")
+        ok = monthly[mk]["ok"]
+        nok = monthly[mk]["not_ok"]
+        summary += f"| {label} | {ok} | {nok} | {ok + nok} |\n"
+
+    # Chart image reference
+    summary += f"\n### Monthly Chart\n\n![Monthly Chart](monthly_chart.png)\n"
+
+    with open(LOG_PATH, "w", encoding="utf-8") as f:
+        f.write(content + summary)
+
+    # Generate chart image
+    if monthly:
+        generate_chart(monthly)
+
 
 
 def classify_result(text):
@@ -153,169 +253,6 @@ def select_service(page):
             return
 
 
-def fill_and_submit_form(iframe, full_result_text, dry_run=False, phone_override=None):
-    # Open the report form — use JS click because the site's sticky nav bar
-    # (<tef-navigation>) overlays the button and intercepts pointer events.
-    clicked = iframe.evaluate("""() => {
-        const els = Array.from(document.querySelectorAll("div[role='button'], button, a, span"));
-        const target = els.find(el => (el.innerText || "").trim().toLowerCase() === "jetzt melden");
-        if (target) { target.click(); return true; }
-        return false;
-    }""")
-    if not clicked:
-        return False, "form_button_not_found", ""
-
-    # Wait for form to appear (poll for key fields)
-    form_ready = False
-    for _ in range(30):
-        try:
-            if iframe.locator("input[name='category']").count() > 0:
-                form_ready = True
-                break
-        except Exception:
-            pass
-        iframe.page.wait_for_timeout(800)
-    if not form_ready:
-        return False, "form_not_opened", ""
-
-    # Re-remove overlays in case they reappeared
-    remove_overlays(iframe.page)
-    iframe.page.wait_for_timeout(500)
-
-    def click_radio(name, value):
-        """Click a radio's parent label via JS to trigger React state updates."""
-        return iframe.evaluate(
-            """([name, value]) => {
-                const el = document.querySelector(`input[name='${name}'][value='${value}']`);
-                if (!el) return false;
-                // Click the label wrapping this radio to trigger React/MUI properly
-                const label = el.closest('label') || el.parentElement?.querySelector('label');
-                if (label) { label.click(); return true; }
-                el.click();
-                el.dispatchEvent(new Event('change', { bubbles: true }));
-                return true;
-            }""",
-            [name, value],
-        )
-
-    def click_label(text_regex):
-        try:
-            loc = iframe.locator("label", has_text=text_regex).first
-            loc.click(timeout=3000, force=True)
-            return True
-        except Exception:
-            return False
-
-    # Category: Internet (value=30)
-    if not click_radio("category", "30"):
-        click_label(re.compile(r"^Internet$", re.I))
-    # Wait for issue options to load (they appear after selecting category)
-    iframe.page.wait_for_timeout(1000)
-    # Issue: Langsame Datenverbindung (appears dynamically after category)
-    if not click_radio("issue", "110"):
-        click_label(re.compile(r"Langsame Datenverbindung", re.I))
-    # Frequency: Immer (value=30)
-    if not click_radio("frequency", "30"):
-        click_label(re.compile(r"^Immer$", re.I))
-    # Location: Im Gebäude (value=10)
-    if not click_radio("location", "10"):
-        click_label(re.compile(r"Im Gebäude|Im Gebaeude", re.I))
-    # Since: Schon länger (value=30)
-    if not click_radio("customq1", "30"):
-        click_label(re.compile(r"Schon länger|Schon laenger", re.I))
-
-    # Comment text — sanitize special chars the form rejects
-    def sanitize(text):
-        """Replace special Unicode chars with ASCII equivalents."""
-        text = text.replace("\u201E", '"').replace("\u201C", '"')   # „ "
-        text = text.replace("\u201A", "'").replace("\u2018", "'")   # ‚ '
-        text = text.replace("\u201D", '"').replace("\u201F", '"')
-        text = text.replace("\u2019", "'").replace("\u2013", "-")   # ' –
-        text = text.replace("\u2014", "-").replace("\u2026", "...") # — …
-        return text
-
-    message = random.choice(TEMPLATES)
-    comment = sanitize(f"{message}\n\n{full_result_text}")
-    try:
-        textarea = iframe.locator("textarea#comments").first
-        textarea.click(force=True, timeout=3000)
-        textarea.fill(comment)
-    except Exception:
-        try:
-            textarea = iframe.locator("textarea").first
-            textarea.click(force=True, timeout=3000)
-            textarea.fill(comment)
-        except Exception:
-            return False, "comment_not_filled", ""
-
-    # Mobile number — use JS focus + keyboard typing to trigger React state
-    number = phone_override or MOBILE_NUMBER
-    try:
-        # Focus the input via JS inside the iframe to bypass any overlay
-        iframe.evaluate("""() => {
-            const inp = document.querySelector("input[name='customer_mobile']");
-            if (inp) { inp.focus(); inp.value = ''; }
-        }""")
-        iframe.page.wait_for_timeout(300)
-        # Type each digit via keyboard to trigger React onChange events
-        iframe.page.keyboard.type(number, delay=50)
-        iframe.page.wait_for_timeout(300)
-    except Exception:
-        return False, "phone_not_filled", message
-
-    # --- dry-run: stop here so user can inspect the filled form ---
-    if dry_run:
-        return False, "dry_run_stopped_before_submit", message
-
-    # Check for validation errors before submitting
-    iframe.page.wait_for_timeout(500)
-    has_errors = iframe.evaluate("""() => {
-        const errs = document.querySelectorAll('.MuiFormHelperText-root.Mui-error');
-        const visible = Array.from(errs).filter(e => e.offsetParent !== null && e.innerText.trim());
-        return visible.map(e => e.innerText.trim());
-    }""")
-    if has_errors:
-        return False, f"validation_errors: {'; '.join(has_errors)}", message
-
-    # Submit
-    submit_clicked = iframe.evaluate("""() => {
-        const btns = Array.from(document.querySelectorAll("button, div[role='button']"));
-        const target = btns.find(b => /absenden/i.test(b.innerText || ""));
-        if (target) { target.click(); return true; }
-        return false;
-    }""")
-    if not submit_clicked:
-        submit_btn = iframe.get_by_role("button", name=re.compile(r"absenden", re.I))
-        try:
-            submit_btn.click(force=True, timeout=5000)
-            submit_clicked = True
-        except Exception:
-            return False, "submit_not_clicked", message
-
-    # Wait for confirmation dialog (MuiDialog with "Vielen Dank")
-    iframe.page.wait_for_timeout(3000)
-
-    # Check if validation errors appeared after submit
-    post_errors = iframe.evaluate("""() => {
-        const errs = document.querySelectorAll('.MuiFormHelperText-root.Mui-error');
-        const visible = Array.from(errs).filter(e => e.offsetParent !== null && e.innerText.trim());
-        return visible.map(e => e.innerText.trim());
-    }""")
-    if post_errors:
-        return False, f"validation_errors: {'; '.join(post_errors)}", message
-
-    confirmation = ""
-    try:
-        iframe.locator(".MuiDialogContent-root").wait_for(timeout=15000)
-        confirmation = iframe.locator(".MuiDialogContent-root").first.inner_text()
-    except Exception:
-        try:
-            iframe.locator("text=Vielen Dank").wait_for(timeout=5000)
-            confirmation = iframe.locator("text=Vielen Dank").first.inner_text()
-        except Exception:
-            confirmation = ""
-    return True, confirmation.strip() or "confirmation_not_found", message
-
 
 def find_address_input(ctx):
     locators = [
@@ -335,7 +272,7 @@ def find_address_input(ctx):
     return None
 
 
-def run_check(dry_run=False, headed=False, phone=None, force_submit=False):
+def run_check(headed=False):
     with sync_playwright() as p:
         browser = p.chromium.launch(
             headless=not headed,
@@ -376,7 +313,6 @@ def run_check(dry_run=False, headed=False, phone=None, force_submit=False):
             raise RuntimeError("Address input not found")
 
         input_box.fill(ADDRESS)
-        # Try to select the first suggestion if available
         try:
             page.keyboard.press("ArrowDown")
             page.keyboard.press("Enter")
@@ -390,12 +326,10 @@ def run_check(dry_run=False, headed=False, phone=None, force_submit=False):
         # Trigger search if there is a search button
         search_btn = frame.get_by_role("button", name=re.compile(r"suchen|suche|prüfen|pruefen", re.I))
         if not click_if_visible(page, search_btn):
-            # Try the SearchIcon button next to the input
             try:
                 icon_btn = frame.locator("button", has=frame.locator("svg[data-testid='SearchIcon']")).first
                 icon_btn.click(timeout=3000, force=True)
             except Exception:
-                # Fallback: button near input
                 try:
                     near_btn = input_box.locator("xpath=ancestor::div[1]//button").first
                     near_btn.click(timeout=3000, force=True)
@@ -421,80 +355,26 @@ def run_check(dry_run=False, headed=False, phone=None, force_submit=False):
         if not full_text:
             full_text = ((result_text or body_text)[:2000]).replace("\n", " ").strip()
 
-        submitted = False
-        confirmation = ""
-        submit_reason = ""
-        message_sent = ""
-        weekday = datetime.now(TIMEZONE).weekday()
-        is_report_day = weekday in (0, 3)  # 0 = Monday, 3 = Thursday
-        phone_for_day = phone or (MOBILE_NUMBER_MONDAY if weekday == 0 else MOBILE_NUMBER_THURSDAY)
-        if any(phrase in full_text for phrase in TRIGGER_PHRASES):
-            if is_report_day or dry_run or force_submit:
-                try:
-                    submitted, confirmation, message_sent = fill_and_submit_form(frame, full_text, dry_run=dry_run, phone_override=phone_for_day)
-                    if not submitted:
-                        submit_reason = confirmation
-                except Exception as exc:
-                    submitted = False
-                    submit_reason = f"exception: {exc.__class__.__name__}: {exc}"
-            else:
-                submit_reason = "outage_detected_but_form_only_on_mondays_and_thursdays"
-
-        if dry_run:
-            # Take focused screenshots of the filled form for inspection
-            try:
-                frame.locator("input[name='category']").first.scroll_into_view_if_needed()
-                page.wait_for_timeout(300)
-            except Exception:
-                pass
-            top_path = os.path.join(os.path.dirname(LOG_PATH), "dry_run_form_top.png")
-            page.screenshot(path=top_path)
-            print(f"Screenshot (top) saved to {top_path}")
-            try:
-                frame.locator("input[name='customer_mobile']").first.scroll_into_view_if_needed()
-                page.wait_for_timeout(300)
-            except Exception:
-                pass
-            bottom_path = os.path.join(os.path.dirname(LOG_PATH), "dry_run_form_bottom.png")
-            page.screenshot(path=bottom_path)
-            print(f"Screenshot (bottom) saved to {bottom_path}")
-            if headed:
-                print("\n=== DRY RUN: Form filled. Inspect the browser. Press Enter to close. ===")
-                try:
-                    input()
-                except EOFError:
-                    pass
-
         browser.close()
-
-        form_submitted = "yes" if submitted else "no"
-        reason = confirmation if submitted else submit_reason
-        return status, full_text, form_submitted, reason, message_sent
+        return status, full_text
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dry-run", action="store_true", help="Fill form but do not submit")
     parser.add_argument("--headed", action="store_true", help="Run browser in headed (visible) mode")
     parser.add_argument("--no-log", action="store_true", help="Skip writing to log file")
-    parser.add_argument("--phone", type=str, default=None, help="Override phone number for testing")
-    parser.add_argument("--force-submit", action="store_true", help="Force form submission even if not Monday")
     args = parser.parse_args()
 
     status = "error"
     result_text = ""
-    form_submitted = "no"
-    reason = ""
-    message_sent = ""
     try:
-        status, result_text, form_submitted, reason, message_sent = run_check(dry_run=args.dry_run, headed=args.headed, phone=args.phone, force_submit=args.force_submit)
+        status, result_text = run_check(headed=args.headed)
     except Exception as exc:
-        reason = f"error: {exc.__class__.__name__}: {exc}"
+        result_text = f"error: {exc.__class__.__name__}: {exc}"
 
     if not args.no_log:
-        append_log(status, result_text, form_submitted, reason, message_sent)
-        append_readme()
-    print(f"[{now_iso()}] status={status} form_submitted={form_submitted} reason={reason}")
+        append_log(status, result_text)
+    print(f"[{now_iso()}] status={status} result={result_text[:200]}")
 
 
 if __name__ == "__main__":
