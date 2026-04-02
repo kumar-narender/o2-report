@@ -664,15 +664,16 @@
 | 2 Apr 2026 | 00:24 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | outage | Ergebnis für: Egger Straße, 94469 Deggendorf<br>Eine Basisstation in der Nähe funktioniert im Moment nicht einwandfrei.<br>- Der technische Support arbeitet an der Wiederherstellung der vollständigen Netzfunktionalität<br>Für eine schnelle Lösung helfen oft auch folgende Tipps:<br>- Handy neu starten<br>- Prüfen, ob „Nicht stören“, „Ruhe“ bzw. „Flugmodus“ aktiviert ist<br>- Sicherstellen, dass „Mobile Daten“ aktiviert sind<br>- WLAN-Anrufe aktivieren<br>Update um 00:06 (halbstündliche bis einstündliche Aktualisierung).<br>Möchtest du mehr zu den Tipps erfahren? Auf unserer Hilfeseite haben wir weitere Informationen für dich bereitgestelt.<br>Ich bin von dieser Störung betroffen bzw. möchte eine Störung melden und darüber auf dem Laufenden gehalten werden<br>Jetzt melden |
 | 2 Apr 2026 | 01:26 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | outage | Ergebnis für: Egger Straße, 94469 Deggendorf<br>Eine Basisstation in der Nähe funktioniert im Moment nicht einwandfrei.<br>- Der technische Support arbeitet an der Wiederherstellung der vollständigen Netzfunktionalität<br>Für eine schnelle Lösung helfen oft auch folgende Tipps:<br>- Handy neu starten<br>- Prüfen, ob „Nicht stören“, „Ruhe“ bzw. „Flugmodus“ aktiviert ist<br>- Sicherstellen, dass „Mobile Daten“ aktiviert sind<br>- WLAN-Anrufe aktivieren<br>Update um 01:06 (halbstündliche bis einstündliche Aktualisierung).<br>Möchtest du mehr zu den Tipps erfahren? Auf unserer Hilfeseite haben wir weitere Informationen für dich bereitgestelt.<br>Ich bin von dieser Störung betroffen bzw. möchte eine Störung melden und darüber auf dem Laufenden gehalten werden<br>Jetzt melden |
 | 2 Apr 2026 | 03:06 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | outage | Ergebnis für: Egger Straße, 94469 Deggendorf<br>Eine Basisstation in der Nähe funktioniert im Moment nicht einwandfrei.<br>- Der technische Support arbeitet an der Wiederherstellung der vollständigen Netzfunktionalität<br>Für eine schnelle Lösung helfen oft auch folgende Tipps:<br>- Handy neu starten<br>- Prüfen, ob „Nicht stören“, „Ruhe“ bzw. „Flugmodus“ aktiviert ist<br>- Sicherstellen, dass „Mobile Daten“ aktiviert sind<br>- WLAN-Anrufe aktivieren<br>Update um 02:36 (halbstündliche bis einstündliche Aktualisierung).<br>Möchtest du mehr zu den Tipps erfahren? Auf unserer Hilfeseite haben wir weitere Informationen für dich bereitgestelt.<br>Ich bin von dieser Störung betroffen bzw. möchte eine Störung melden und darüber auf dem Laufenden gehalten werden<br>Jetzt melden |
+| 2 Apr 2026 | 06:16 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | outage | Ergebnis für: Egger Straße, 94469 Deggendorf<br>Eine Basisstation in der Nähe funktioniert im Moment nicht einwandfrei.<br>- Der technische Support arbeitet an der Wiederherstellung der vollständigen Netzfunktionalität<br>Für eine schnelle Lösung helfen oft auch folgende Tipps:<br>- Handy neu starten<br>- Prüfen, ob „Nicht stören“, „Ruhe“ bzw. „Flugmodus“ aktiviert ist<br>- Sicherstellen, dass „Mobile Daten“ aktiviert sind<br>- WLAN-Anrufe aktivieren<br>Update um 06:05 (halbstündliche bis einstündliche Aktualisierung).<br>Möchtest du mehr zu den Tipps erfahren? Auf unserer Hilfeseite haben wir weitere Informationen für dich bereitgestelt.<br>Ich bin von dieser Störung betroffen bzw. möchte eine Störung melden und darüber auf dem Laufenden gehalten werden<br>Jetzt melden |
 
 ## Summary
 
-**Total checks:** 662
+**Total checks:** 663
 
 | Status | Count |
 | --- | --- |
 | ok | 401 |
-| outage | 247 |
+| outage | 248 |
 | error | 14 |
 
 ### Monthly Breakdown
@@ -681,7 +682,7 @@
 | --- | --- | --- | --- |
 | Feb 2026 | 9 | 80 | 89 |
 | Mar 2026 | 387 | 165 | 552 |
-| Apr 2026 | 5 | 16 | 21 |
+| Apr 2026 | 5 | 17 | 22 |
 
 ### Monthly Chart
 
