@@ -1471,15 +1471,16 @@
 | 24 May 2026 | 23:43 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | outage | Ergebnis für: Egger Straße, 94469 Deggendorf<br>Eine Basisstation in der Nähe meldet Einschränkungen.<br>Telefonieren und surfen mag möglicherweise nicht einwandfrei funktionieren. Der Grund ist entweder eine Überlastsituation, also zu viele Mobilfunknutzer gleichzeitig in einem bestimmten Bereich. Oder es handelt sich hier um eine andere Störung.<br>Für eine schnelle Lösung helfen oft auch folgende Tipps:<br>- Handy neu starten<br>- Prüfen, ob „Nicht stören“, „Ruhe“ bzw. „Flugmodus“ aktiviert ist<br>- Sicherstellen, dass „Mobile Daten“ aktiviert sind<br>- WLAN-Anrufe aktivieren<br>Update um 23:38 (halbstündliche bis einstündliche Aktualisierung).<br>Möchtest du mehr zu den Tipps erfahren? Auf unserer Hilfeseite haben wir weitere Informationen für dich bereitgestelt.<br>Ich bin von dieser Störung betroffen bzw. möchte eine Störung melden und darüber auf dem Laufenden gehalten werden<br>Jetzt melden |
 | 25 May 2026 | 00:44 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | outage | Ergebnis für: Egger Straße, 94469 Deggendorf<br>Eine Basisstation in der Nähe meldet Einschränkungen.<br>Telefonieren und surfen mag möglicherweise nicht einwandfrei funktionieren. Der Grund ist entweder eine Überlastsituation, also zu viele Mobilfunknutzer gleichzeitig in einem bestimmten Bereich. Oder es handelt sich hier um eine andere Störung.<br>Für eine schnelle Lösung helfen oft auch folgende Tipps:<br>- Handy neu starten<br>- Prüfen, ob „Nicht stören“, „Ruhe“ bzw. „Flugmodus“ aktiviert ist<br>- Sicherstellen, dass „Mobile Daten“ aktiviert sind<br>- WLAN-Anrufe aktivieren<br>Update um 00:36 (halbstündliche bis einstündliche Aktualisierung).<br>Möchtest du mehr zu den Tipps erfahren? Auf unserer Hilfeseite haben wir weitere Informationen für dich bereitgestelt.<br>Ich bin von dieser Störung betroffen bzw. möchte eine Störung melden und darüber auf dem Laufenden gehalten werden<br>Jetzt melden |
 | 25 May 2026 | 01:46 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | outage | Ergebnis für: Egger Straße, 94469 Deggendorf<br>Eine Basisstation in der Nähe meldet Einschränkungen.<br>Telefonieren und surfen mag möglicherweise nicht einwandfrei funktionieren. Der Grund ist entweder eine Überlastsituation, also zu viele Mobilfunknutzer gleichzeitig in einem bestimmten Bereich. Oder es handelt sich hier um eine andere Störung.<br>Für eine schnelle Lösung helfen oft auch folgende Tipps:<br>- Handy neu starten<br>- Prüfen, ob „Nicht stören“, „Ruhe“ bzw. „Flugmodus“ aktiviert ist<br>- Sicherstellen, dass „Mobile Daten“ aktiviert sind<br>- WLAN-Anrufe aktivieren<br>Update um 01:36 (halbstündliche bis einstündliche Aktualisierung).<br>Möchtest du mehr zu den Tipps erfahren? Auf unserer Hilfeseite haben wir weitere Informationen für dich bereitgestelt.<br>Ich bin von dieser Störung betroffen bzw. möchte eine Störung melden und darüber auf dem Laufenden gehalten werden<br>Jetzt melden |
+| 25 May 2026 | 04:00 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | outage | Ergebnis für: Egger Straße, 94469 Deggendorf<br>Eine Basisstation in der Nähe meldet Einschränkungen.<br>Telefonieren und surfen mag möglicherweise nicht einwandfrei funktionieren. Der Grund ist entweder eine Überlastsituation, also zu viele Mobilfunknutzer gleichzeitig in einem bestimmten Bereich. Oder es handelt sich hier um eine andere Störung.<br>Für eine schnelle Lösung helfen oft auch folgende Tipps:<br>- Handy neu starten<br>- Prüfen, ob „Nicht stören“, „Ruhe“ bzw. „Flugmodus“ aktiviert ist<br>- Sicherstellen, dass „Mobile Daten“ aktiviert sind<br>- WLAN-Anrufe aktivieren<br>Update um 03:36 (halbstündliche bis einstündliche Aktualisierung).<br>Möchtest du mehr zu den Tipps erfahren? Auf unserer Hilfeseite haben wir weitere Informationen für dich bereitgestelt.<br>Ich bin von dieser Störung betroffen bzw. möchte eine Störung melden und darüber auf dem Laufenden gehalten werden<br>Jetzt melden |
 
 ## Summary
 
-**Total checks:** 1469
+**Total checks:** 1470
 
 | Status | Count |
 | --- | --- |
 | ok | 740 |
-| outage | 694 |
+| outage | 695 |
 | maintenance | 1 |
 | error | 34 |
 
@@ -1490,7 +1491,7 @@
 | Feb 2026 | 9 | 80 | 89 |
 | Mar 2026 | 387 | 165 | 552 |
 | Apr 2026 | 342 | 171 | 513 |
-| May 2026 | 2 | 313 | 315 |
+| May 2026 | 2 | 314 | 316 |
 
 ### Monthly Chart
 
