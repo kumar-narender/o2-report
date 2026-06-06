@@ -1588,14 +1588,15 @@
 | 6 Jun 2026 | 21:00 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | ok | Ergebnis für: Egger Straße, 94469 Deggendorf<br>Unser Netz funktioniert störungsfrei.<br>Wenn wir an einer Basisstation in der Nähe arbeiten, informieren wir darüber an dieser Stelle.<br>Update um 20:37 (halbstündliche bis einstündliche Aktualisierung).<br>Für eine schnelle Lösung helfen oft auch folgende Tipps:<br>Handy neu starten<br>Prüfen, ob „Nicht stören“, „Ruhe“ bzw. „Flugmodus“ aktiviert ist<br>Sicherstellen, dass „Mobile Daten“ aktiviert sind<br>WLAN-Anrufe aktivieren<br>Möchtest du mehr zu den Tipps erfahren? Auf unserer Hilfeseite haben wir weitere Informationen für dich bereitgestelt.<br>Keine Lösung gefunden?<br>Störung melden<br>Du willst selbst prüfen, wie dein Mobilfunk- oder Festnetzanschluss aktuell läuft?<br>Lade dir die o2 myService App herunter. Sie führt automatisch Tests für deine Anschlüsse durch und gibt dir eine erste schnelle Hilfestellung.<br>JETZT BEI<br>Google Play<br>Laden im<br>App Store |
 | 6 Jun 2026 | 22:09 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | ok | Ergebnis für: Egger Straße, 94469 Deggendorf<br>Unser Netz funktioniert störungsfrei.<br>Wenn wir an einer Basisstation in der Nähe arbeiten, informieren wir darüber an dieser Stelle.<br>Update um 22:06 (halbstündliche bis einstündliche Aktualisierung).<br>Für eine schnelle Lösung helfen oft auch folgende Tipps:<br>Handy neu starten<br>Prüfen, ob „Nicht stören“, „Ruhe“ bzw. „Flugmodus“ aktiviert ist<br>Sicherstellen, dass „Mobile Daten“ aktiviert sind<br>WLAN-Anrufe aktivieren<br>Möchtest du mehr zu den Tipps erfahren? Auf unserer Hilfeseite haben wir weitere Informationen für dich bereitgestelt.<br>Keine Lösung gefunden?<br>Störung melden<br>Du willst selbst prüfen, wie dein Mobilfunk- oder Festnetzanschluss aktuell läuft?<br>Lade dir die o2 myService App herunter. Sie führt automatisch Tests für deine Anschlüsse durch und gibt dir eine erste schnelle Hilfestellung.<br>JETZT BEI<br>Google Play<br>Laden im<br>App Store |
 | 6 Jun 2026 | 23:52 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | ok | Ergebnis für: Egger Straße, 94469 Deggendorf<br>Unser Netz funktioniert störungsfrei.<br>Wenn wir an einer Basisstation in der Nähe arbeiten, informieren wir darüber an dieser Stelle.<br>Update um 23:36 (halbstündliche bis einstündliche Aktualisierung).<br>Für eine schnelle Lösung helfen oft auch folgende Tipps:<br>Handy neu starten<br>Prüfen, ob „Nicht stören“, „Ruhe“ bzw. „Flugmodus“ aktiviert ist<br>Sicherstellen, dass „Mobile Daten“ aktiviert sind<br>WLAN-Anrufe aktivieren<br>Möchtest du mehr zu den Tipps erfahren? Auf unserer Hilfeseite haben wir weitere Informationen für dich bereitgestelt.<br>Keine Lösung gefunden?<br>Störung melden<br>Du willst selbst prüfen, wie dein Mobilfunk- oder Festnetzanschluss aktuell läuft?<br>Lade dir die o2 myService App herunter. Sie führt automatisch Tests für deine Anschlüsse durch und gibt dir eine erste schnelle Hilfestellung.<br>JETZT BEI<br>Google Play<br>Laden im<br>App Store |
+| 7 Jun 2026 | 00:51 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | ok | Ergebnis für: Egger Straße, 94469 Deggendorf<br>Unser Netz funktioniert störungsfrei.<br>Wenn wir an einer Basisstation in der Nähe arbeiten, informieren wir darüber an dieser Stelle.<br>Update um 00:36 (halbstündliche bis einstündliche Aktualisierung).<br>Für eine schnelle Lösung helfen oft auch folgende Tipps:<br>Handy neu starten<br>Prüfen, ob „Nicht stören“, „Ruhe“ bzw. „Flugmodus“ aktiviert ist<br>Sicherstellen, dass „Mobile Daten“ aktiviert sind<br>WLAN-Anrufe aktivieren<br>Möchtest du mehr zu den Tipps erfahren? Auf unserer Hilfeseite haben wir weitere Informationen für dich bereitgestelt.<br>Keine Lösung gefunden?<br>Störung melden<br>Du willst selbst prüfen, wie dein Mobilfunk- oder Festnetzanschluss aktuell läuft?<br>Lade dir die o2 myService App herunter. Sie führt automatisch Tests für deine Anschlüsse durch und gibt dir eine erste schnelle Hilfestellung.<br>JETZT BEI<br>Google Play<br>Laden im<br>App Store |
 
 ## Summary
 
-**Total checks:** 1586
+**Total checks:** 1587
 
 | Status | Count |
 | --- | --- |
-| ok | 829 |
+| ok | 830 |
 | outage | 721 |
 | maintenance | 1 |
 | error | 35 |
@@ -1608,7 +1609,7 @@
 | Mar 2026 | 387 | 165 | 552 |
 | Apr 2026 | 342 | 171 | 513 |
 | May 2026 | 42 | 341 | 383 |
-| Jun 2026 | 49 | 0 | 49 |
+| Jun 2026 | 50 | 0 | 50 |
 
 ### Monthly Chart
 
