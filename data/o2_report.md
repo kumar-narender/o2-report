@@ -2759,17 +2759,18 @@
 | 6 Sep 2026 | 20:41 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | ok | Ergebnis für: Egger Straße, 94469 Deggendorf<br>Unser Netz funktioniert störungsfrei.<br>In diesem Bereich werden wir an den Basisstationen arbeiten, und zwar am: 07. September.<br>Update um 20:37 (halbstündliche bis einstündliche Aktualisierung).<br>Für eine schnelle Lösung helfen oft auch folgende Tipps:<br>Handy neu starten<br>Prüfen, ob „Nicht stören“, „Ruhe“ bzw. „Flugmodus“ aktiviert ist<br>Sicherstellen, dass „Mobile Daten“ aktiviert sind<br>WLAN-Anrufe aktivieren<br>Möchtest du mehr zu den Tipps erfahren? Auf unserer Hilfeseite haben wir weitere Informationen für dich bereitgestelt.<br>Keine Lösung gefunden?<br>Störung melden<br>Du willst selbst prüfen, wie dein Mobilfunk- oder Festnetzanschluss aktuell läuft?<br>Lade dir die o2 myService App herunter. Sie führt automatisch Tests für deine Anschlüsse durch und gibt dir eine erste schnelle Hilfestellung.<br>JETZT BEI<br>Google Play<br>Laden im<br>App Store |
 | 6 Sep 2026 | 22:53 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | ok | Ergebnis für: Egger Straße, 94469 Deggendorf<br>Unser Netz funktioniert störungsfrei.<br>In diesem Bereich werden wir an den Basisstationen arbeiten, und zwar am: 07. September.<br>Update um 22:36 (halbstündliche bis einstündliche Aktualisierung).<br>Für eine schnelle Lösung helfen oft auch folgende Tipps:<br>Handy neu starten<br>Prüfen, ob „Nicht stören“, „Ruhe“ bzw. „Flugmodus“ aktiviert ist<br>Sicherstellen, dass „Mobile Daten“ aktiviert sind<br>WLAN-Anrufe aktivieren<br>Möchtest du mehr zu den Tipps erfahren? Auf unserer Hilfeseite haben wir weitere Informationen für dich bereitgestelt.<br>Keine Lösung gefunden?<br>Störung melden<br>Du willst selbst prüfen, wie dein Mobilfunk- oder Festnetzanschluss aktuell läuft?<br>Lade dir die o2 myService App herunter. Sie führt automatisch Tests für deine Anschlüsse durch und gibt dir eine erste schnelle Hilfestellung.<br>JETZT BEI<br>Google Play<br>Laden im<br>App Store |
 | 7 Sep 2026 | 00:29 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | ok | Ergebnis für: Egger Straße, 94469 Deggendorf<br>Unser Netz funktioniert störungsfrei.<br>In diesem Bereich werden wir an den Basisstationen arbeiten, und zwar am: 07. September.<br>Update um 00:06 (halbstündliche bis einstündliche Aktualisierung).<br>Für eine schnelle Lösung helfen oft auch folgende Tipps:<br>Handy neu starten<br>Prüfen, ob „Nicht stören“, „Ruhe“ bzw. „Flugmodus“ aktiviert ist<br>Sicherstellen, dass „Mobile Daten“ aktiviert sind<br>WLAN-Anrufe aktivieren<br>Möchtest du mehr zu den Tipps erfahren? Auf unserer Hilfeseite haben wir weitere Informationen für dich bereitgestelt.<br>Keine Lösung gefunden?<br>Störung melden<br>Du willst selbst prüfen, wie dein Mobilfunk- oder Festnetzanschluss aktuell läuft?<br>Lade dir die o2 myService App herunter. Sie führt automatisch Tests für deine Anschlüsse durch und gibt dir eine erste schnelle Hilfestellung.<br>JETZT BEI<br>Google Play<br>Laden im<br>App Store |
+| 7 Sep 2026 | 02:24 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | error | error: RuntimeError: Live-Check iframe not found |
 
 ## Summary
 
-**Total checks:** 2757
+**Total checks:** 2758
 
 | Status | Count |
 | --- | --- |
 | ok | 1446 |
 | outage | 1030 |
 | maintenance | 212 |
-| error | 69 |
+| error | 70 |
 
 ### Monthly Breakdown
 
@@ -2782,7 +2783,7 @@
 | Jun 2026 | 133 | 132 | 265 |
 | Jul 2026 | 258 | 135 | 393 |
 | Aug 2026 | 233 | 285 | 518 |
-| Sep 2026 | 42 | 2 | 44 |
+| Sep 2026 | 42 | 3 | 45 |
 
 ### Monthly Chart
 
