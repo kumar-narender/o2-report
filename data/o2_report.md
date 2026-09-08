@@ -2766,16 +2766,17 @@
 | 7 Sep 2026 | 22:13 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | error | error: RuntimeError: Live-Check iframe not found |
 | 8 Sep 2026 | 01:05 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | maintenance | Ergebnis für: Egger Straße, 94469 Deggendorf<br>An einer Basisstation in der Nähe haben wir Wartungsarbeiten vorgenommen.<br>- Aktivitäten abgeschlossen bis voraussichtlich 14.09.2026<br>- Vorübergehende Beeinträchtigungen bis zum Abschlussdatum möglich<br>Für eine schnelle Lösung helfen oft auch folgende Tipps:<br>- Handy neu starten<br>- Prüfen, ob „Nicht stören“, „Ruhe“ bzw. „Flugmodus“ aktiviert ist<br>- Sicherstellen, dass „Mobile Daten“ aktiviert sind<br>- WLAN-Anrufe aktivieren<br>Update um 00:36 (halbstündliche bis einstündliche Aktualisierung).<br>Möchtest du mehr zu den Tipps erfahren? Auf unserer Hilfeseite haben wir weitere Informationen für dich bereitgestelt.<br>Ich bin von dieser Störung betroffen bzw. möchte eine Störung melden und darüber auf dem Laufenden gehalten werden<br>Jetzt melden |
 | 8 Sep 2026 | 03:35 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | maintenance | Ergebnis für: Egger Straße, 94469 Deggendorf<br>An einer Basisstation in der Nähe haben wir Wartungsarbeiten vorgenommen.<br>- Aktivitäten abgeschlossen bis voraussichtlich 14.09.2026<br>- Vorübergehende Beeinträchtigungen bis zum Abschlussdatum möglich<br>Für eine schnelle Lösung helfen oft auch folgende Tipps:<br>- Handy neu starten<br>- Prüfen, ob „Nicht stören“, „Ruhe“ bzw. „Flugmodus“ aktiviert ist<br>- Sicherstellen, dass „Mobile Daten“ aktiviert sind<br>- WLAN-Anrufe aktivieren<br>Update um 03:05 (halbstündliche bis einstündliche Aktualisierung).<br>Möchtest du mehr zu den Tipps erfahren? Auf unserer Hilfeseite haben wir weitere Informationen für dich bereitgestelt.<br>Ich bin von dieser Störung betroffen bzw. möchte eine Störung melden und darüber auf dem Laufenden gehalten werden<br>Jetzt melden |
+| 8 Sep 2026 | 08:36 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | maintenance | Ergebnis für: Egger Straße, 94469 Deggendorf<br>An einer Basisstation in der Nähe haben wir Wartungsarbeiten vorgenommen.<br>- Aktivitäten abgeschlossen bis voraussichtlich 14.09.2026<br>- Vorübergehende Beeinträchtigungen bis zum Abschlussdatum möglich<br>Für eine schnelle Lösung helfen oft auch folgende Tipps:<br>- Handy neu starten<br>- Prüfen, ob „Nicht stören“, „Ruhe“ bzw. „Flugmodus“ aktiviert ist<br>- Sicherstellen, dass „Mobile Daten“ aktiviert sind<br>- WLAN-Anrufe aktivieren<br>Update um 08:06 (halbstündliche bis einstündliche Aktualisierung).<br>Möchtest du mehr zu den Tipps erfahren? Auf unserer Hilfeseite haben wir weitere Informationen für dich bereitgestelt.<br>Ich bin von dieser Störung betroffen bzw. möchte eine Störung melden und darüber auf dem Laufenden gehalten werden<br>Jetzt melden |
 
 ## Summary
 
-**Total checks:** 2764
+**Total checks:** 2765
 
 | Status | Count |
 | --- | --- |
 | ok | 1448 |
 | outage | 1030 |
-| maintenance | 215 |
+| maintenance | 216 |
 | error | 71 |
 
 ### Monthly Breakdown
@@ -2789,7 +2790,7 @@
 | Jun 2026 | 133 | 132 | 265 |
 | Jul 2026 | 258 | 135 | 393 |
 | Aug 2026 | 233 | 285 | 518 |
-| Sep 2026 | 44 | 7 | 51 |
+| Sep 2026 | 44 | 8 | 52 |
 
 ### Monthly Chart
 
