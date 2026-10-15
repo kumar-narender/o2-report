@@ -2974,17 +2974,18 @@
 | 15 Oct 2026 | 07:35 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | error | error: RuntimeError: Address input not found |
 | 15 Oct 2026 | 12:25 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | error | error: RuntimeError: Address input not found |
 | 15 Oct 2026 | 17:23 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | error | error: RuntimeError: Live-Check iframe not found |
+| 15 Oct 2026 | 21:30 | Berlin | Egger Straße, 94469 Deggendorf, Deutschland | error | error: RuntimeError: Live-Check iframe not found |
 
 ## Summary
 
-**Total checks:** 2972
+**Total checks:** 2973
 
 | Status | Count |
 | --- | --- |
 | ok | 1634 |
 | outage | 1030 |
 | maintenance | 230 |
-| error | 78 |
+| error | 79 |
 
 ### Monthly Breakdown
 
@@ -2998,7 +2999,7 @@
 | Jul 2026 | 258 | 135 | 393 |
 | Aug 2026 | 233 | 285 | 518 |
 | Sep 2026 | 165 | 25 | 190 |
-| Oct 2026 | 65 | 4 | 69 |
+| Oct 2026 | 65 | 5 | 70 |
 
 ### Monthly Chart
 
